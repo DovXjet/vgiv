@@ -69,6 +69,7 @@ add_executable(vgiv
   src/qt/VulkanViewport.cpp
   src/qt/PreferencesDialog.cpp
   src/qt/MainWindow.cpp
+  src/qt/MarkTreeView.cpp
 )
 
 add_dependencies(vgiv vgiv_shaders)
