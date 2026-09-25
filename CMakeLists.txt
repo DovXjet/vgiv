@@ -59,6 +59,7 @@ add_executable(vgiv
   src/main.cpp
   src/GivColor.cpp
   src/GivParser.cpp
+  src/SvgLoader.cpp
   src/SceneBuilder.cpp
   src/PanZoomHandler.cpp
   src/LabelPicker.cpp
@@ -74,7 +75,7 @@ add_executable(vgiv
 
 add_dependencies(vgiv vgiv_shaders)
 
-target_include_directories(vgiv PRIVATE src)
+target_include_directories(vgiv PRIVATE src ${CMAKE_SOURCE_DIR}/third_party)
 target_link_libraries(vgiv PRIVATE vsg::vsg vsgXchange::vsgXchange vsgQt::vsgQt Qt6::Core Qt6::Gui Qt6::Widgets)
 
 target_compile_definitions(vgiv PRIVATE
