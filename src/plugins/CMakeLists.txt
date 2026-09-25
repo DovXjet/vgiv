@@ -1,0 +1,28 @@
+# Image-format plugins for vgiv, loaded at runtime via dlopen (see
+# ImagePluginHost) - never linked into the `vgiv` executable itself.
+# Each plugin is built as a bare-named shared library (no "lib" prefix)
+# so ImagePluginHost's sorted directory scan sees plain format names.
+
+function(vgiv_add_plugin name)
+  add_library(vgiv_plugin_${name} SHARED ${ARGN} ${CMAKE_CURRENT_SOURCE_DIR}/vgiv_plugin_common.cpp)
+  set_target_properties(vgiv_plugin_${name} PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "${name}"
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
+  )
+  target_include_directories(vgiv_plugin_${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  install(TARGETS vgiv_plugin_${name} LIBRARY DESTINATION lib/vgiv/plugins)
+endfunction()
+
+vgiv_add_plugin(stbimage stbimage/stbimage_plugin.cpp)
+target_include_directories(vgiv_plugin_stbimage PRIVATE ${CMAKE_SOURCE_DIR}/third_party)
+
+vgiv_add_plugin(pgm pgm/pgm_plugin.cpp)
+
+find_package(TIFF REQUIRED)
+vgiv_add_plugin(tiff tiff/tiff_plugin.cpp)
+target_link_libraries(vgiv_plugin_tiff PRIVATE TIFF::TIFF)
+
+find_package(WebP CONFIG REQUIRED)
+vgiv_add_plugin(webp webp/webp_plugin.cpp)
+target_link_libraries(vgiv_plugin_webp PRIVATE WebP::webp)
