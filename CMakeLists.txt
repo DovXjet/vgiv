@@ -64,7 +64,6 @@ add_executable(vgiv
   src/BalloonController.cpp
   src/qt/GivViewer.cpp
   src/qt/VulkanViewport.cpp
-  src/qt/DatasetPanel.cpp
   src/qt/PreferencesDialog.cpp
   src/qt/MainWindow.cpp
 )
