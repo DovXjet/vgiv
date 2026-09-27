@@ -14,7 +14,7 @@ endif()
 find_package(vsg CONFIG REQUIRED)
 find_package(vsgXchange CONFIG REQUIRED)
 find_package(vsgQt CONFIG REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent)
 
 # ---------------------------------------------------------------------------
 # Shader compilation (GLSL -> SPIR-V) via glslangValidator
@@ -53,12 +53,21 @@ endforeach()
 add_custom_target(vgiv_shaders DEPENDS ${VGIV_SPIRV_BINARIES})
 
 # ---------------------------------------------------------------------------
+# Third party
+# ---------------------------------------------------------------------------
+# EXCLUDE_FROM_ALL: QtAwesome installs its own library and CMake export set,
+# which has no business landing in vgiv's install prefix. It still builds,
+# since vgiv links it (used to theme the Open dialog's icons).
+add_subdirectory(third_party/QtAwesome EXCLUDE_FROM_ALL)
+
+# ---------------------------------------------------------------------------
 # Main executable
 # ---------------------------------------------------------------------------
 add_executable(vgiv
   src/main.cpp
   src/GivColor.cpp
   src/GivParser.cpp
+  src/GivThumbnailRenderer.cpp
   src/SvgLoader.cpp
   src/SceneBuilder.cpp
   src/CaliperTool.cpp
@@ -71,12 +80,13 @@ add_executable(vgiv
   src/qt/PreferencesDialog.cpp
   src/qt/MainWindow.cpp
   src/qt/MarkTreeView.cpp
+  src/qt/OpenFileDialog.cpp
 )
 
 add_dependencies(vgiv vgiv_shaders)
 
 target_include_directories(vgiv PRIVATE src ${CMAKE_SOURCE_DIR}/third_party)
-target_link_libraries(vgiv PRIVATE vsg::vsg vsgXchange::vsgXchange vsgQt::vsgQt Qt6::Core Qt6::Gui Qt6::Widgets)
+target_link_libraries(vgiv PRIVATE vsg::vsg vsgXchange::vsgXchange vsgQt::vsgQt Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent QtAwesome)
 
 target_compile_definitions(vgiv PRIVATE
   VGIV_SHADER_DIR="${CMAKE_BINARY_DIR}/shaders"
