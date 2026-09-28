@@ -14,7 +14,7 @@ endif()
 find_package(vsg CONFIG REQUIRED)
 find_package(vsgXchange CONFIG REQUIRED)
 find_package(vsgQt CONFIG REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Network)
 find_package(spdlog CONFIG REQUIRED)
 
 # ---------------------------------------------------------------------------
@@ -89,12 +89,13 @@ add_executable(vgiv
   src/qt/MainWindow.cpp
   src/qt/MarkTreeView.cpp
   src/qt/OpenFileDialog.cpp
+  src/qt/RpcServer.cpp
 )
 
 add_dependencies(vgiv vgiv_shaders)
 
 target_include_directories(vgiv PRIVATE src ${CMAKE_SOURCE_DIR}/third_party)
-target_link_libraries(vgiv PRIVATE vsg::vsg vsgXchange::vsgXchange vsgQt::vsgQt Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent QtAwesome spdlog::spdlog)
+target_link_libraries(vgiv PRIVATE vsg::vsg vsgXchange::vsgXchange vsgQt::vsgQt Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent Qt6::Network QtAwesome spdlog::spdlog)
 
 target_compile_definitions(vgiv PRIVATE
   VGIV_SHADER_DIR="${CMAKE_BINARY_DIR}/shaders"
