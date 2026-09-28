@@ -27,6 +27,7 @@ inline VgivPluginImage* allocImage(int width, int height)
     img->orientation = 1;
     img->sampleType = VGIV_SAMPLE_NONE;
     img->samples = nullptr;
+    img->depth = 1;
     return img;
 }
 
@@ -47,12 +48,15 @@ inline size_t sampleTypeSize(VgivSampleType type)
 
 // Allocates and attaches a raw single-channel sample buffer to `img`
 // (already created via allocImage). Called by plugins that decode
-// genuinely single-channel/grayscale source data.
-inline void allocSamples(VgivPluginImage* img, VgivSampleType type)
+// genuinely single-channel/grayscale source data. `depth` slices of
+// width*height samples each are allocated (depth=1 for an ordinary 2D
+// image) - see VgivPluginImage::depth.
+inline void allocSamples(VgivPluginImage* img, VgivSampleType type, int depth = 1)
 {
     img->sampleType = type;
-    img->samples =
-        std::malloc(static_cast<size_t>(img->width) * img->height * sampleTypeSize(type));
+    img->depth = depth;
+    img->samples = std::malloc(static_cast<size_t>(img->width) * img->height *
+                                static_cast<size_t>(depth) * sampleTypeSize(type));
 }
 
 inline char* makeError(const char* fmt, const char* arg)
