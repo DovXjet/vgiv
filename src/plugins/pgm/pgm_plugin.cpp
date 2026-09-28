@@ -8,6 +8,7 @@
 #include "../vgiv_plugin_common.h"
 
 #include <cctype>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -120,6 +121,12 @@ extern "C" VgivPluginImage* vgiv_plugin_load_image(const char* filename, char** 
 
     VgivPluginImage* img = vgiv_plugin::allocImage(width, height);
 
+    // P5 (grayscale) carries real dynamic range - keep it as a raw sample
+    // buffer for the Contrast/Color Table tools, in addition to the RGBA8
+    // preview below (which still downshifts 16-bit samples for display).
+    if (!isColor)
+        vgiv_plugin::allocSamples(img, is16bit ? VGIV_SAMPLE_U16 : VGIV_SAMPLE_U8);
+
     for (int y = 0; y < height; ++y)
     {
         if (std::fread(row.data(), 1, rowBytes, fh) != rowBytes)
@@ -138,8 +145,8 @@ extern "C" VgivPluginImage* vgiv_plugin_load_image(const char* filename, char** 
             if (isColor)
             {
                 size_t off = static_cast<size_t>(x) * 3 * sampleBytes;
-                // PNM is big-endian; downshift 16-bit samples to 8-bit
-                // (no contrast/tonemap tool in this phase).
+                // PNM is big-endian; downshift 16-bit samples to 8-bit for
+                // the RGBA8 preview (color PNM has no raw-sample path).
                 r = is16bit ? row[off] : row[off];
                 g = is16bit ? row[off + sampleBytes] : row[off + 1];
                 b = is16bit ? row[off + 2 * sampleBytes] : row[off + 2];
@@ -148,6 +155,14 @@ extern "C" VgivPluginImage* vgiv_plugin_load_image(const char* filename, char** 
             {
                 size_t off = static_cast<size_t>(x) * sampleBytes;
                 r = g = b = is16bit ? row[off] : row[off];
+
+                // PNM is big-endian: reassemble the full-precision 16-bit
+                // sample (row[off] is the high byte) for the raw buffer.
+                if (is16bit)
+                    reinterpret_cast<uint16_t*>(img->samples)[static_cast<size_t>(y) * width + x] =
+                        static_cast<uint16_t>((row[off] << 8) | row[off + 1]);
+                else
+                    static_cast<uint8_t*>(img->samples)[static_cast<size_t>(y) * width + x] = row[off];
             }
             dst[x * 4 + 0] = r;
             dst[x * 4 + 1] = g;

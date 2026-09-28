@@ -25,7 +25,34 @@ inline VgivPluginImage* allocImage(int width, int height)
     img->height = height;
     img->rgba = static_cast<unsigned char*>(std::malloc(static_cast<size_t>(width) * height * 4));
     img->orientation = 1;
+    img->sampleType = VGIV_SAMPLE_NONE;
+    img->samples = nullptr;
     return img;
+}
+
+inline size_t sampleTypeSize(VgivSampleType type)
+{
+    switch (type)
+    {
+        case VGIV_SAMPLE_U8:
+            return 1;
+        case VGIV_SAMPLE_U16:
+            return 2;
+        case VGIV_SAMPLE_FLOAT:
+            return 4;
+        default:
+            return 0;
+    }
+}
+
+// Allocates and attaches a raw single-channel sample buffer to `img`
+// (already created via allocImage). Called by plugins that decode
+// genuinely single-channel/grayscale source data.
+inline void allocSamples(VgivPluginImage* img, VgivSampleType type)
+{
+    img->sampleType = type;
+    img->samples =
+        std::malloc(static_cast<size_t>(img->width) * img->height * sampleTypeSize(type));
 }
 
 inline char* makeError(const char* fmt, const char* arg)
