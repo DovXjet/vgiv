@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="vgiv-app-icon.png">vgiv-app-icon.png</file>
+  </qresource>
+</RCC>

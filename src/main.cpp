@@ -9,6 +9,7 @@
 #include "qt/MainWindow.h"
 
 #include <QApplication>
+#include <QIcon>
 #include <QCommandLineParser>
 
 #include <spdlog/spdlog.h>
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
     QApplication app(argc, argv);
     QApplication::setOrganizationName("vgiv");
     QApplication::setApplicationName("vgiv");
+    QApplication::setWindowIcon(QIcon(":/vgiv-app-icon.png"));
 
     {
         QStringList argList;

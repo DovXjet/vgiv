@@ -17,6 +17,8 @@
 Name "vgiv"
 OutFile "Installvgiv-v${VERSION}-${SHORTSHA1}.exe"
 BrandingText "vgiv Installer"
+Icon "giv-logo.ico"
+UninstallIcon "giv-logo-install.ico"
 
 SetCompress force
 CRCCheck on
@@ -70,7 +72,7 @@ Section "Install"
   # Associate .giv files with vgiv (per-user)
   WriteRegStr HKCU "Software\Classes\.giv" "" "vgiv.GivFile"
   WriteRegStr HKCU "Software\Classes\vgiv.GivFile" "" "giv File"
-  WriteRegStr HKCU "Software\Classes\vgiv.GivFile\DefaultIcon" "" "$INSTDIR\vgiv.exe,0"
+  WriteRegStr HKCU "Software\Classes\vgiv.GivFile\DefaultIcon" "" "$INSTDIR\vgiv.exe,1"
   WriteRegStr HKCU "Software\Classes\vgiv.GivFile\shell" "" "open"
   WriteRegStr HKCU "Software\Classes\vgiv.GivFile\shell\open\command" "" '"$INSTDIR\vgiv.exe" "%1"'
   System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'

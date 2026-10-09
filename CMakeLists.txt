@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.21)
 project(vgiv CXX)
+if(WIN32)
+  enable_language(RC)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
@@ -109,9 +113,16 @@ add_executable(vgiv
   src/qt/MarkTreeView.cpp
   src/qt/OpenFileDialog.cpp
   src/qt/RpcServer.cpp
+  resources/vgiv.qrc
 )
 if(WIN32)
-  target_sources(vgiv PRIVATE src/qt/WinDropTarget.cpp)
+  # vgiv.rc embeds the app icon (id 1) and the .giv file icon (id 2).
+  target_sources(vgiv PRIVATE src/qt/WinDropTarget.cpp resources/vgiv.rc)
+  # rc.exe doesn't report include dependencies; without this, editing an
+  # icon doesn't rebuild the resource and the exe keeps the stale icon.
+  set_source_files_properties(resources/vgiv.rc PROPERTIES
+    OBJECT_DEPENDS
+      "${CMAKE_SOURCE_DIR}/resources/vgiv-logo.ico;${CMAKE_SOURCE_DIR}/resources/file-giv-logo.ico")
   target_link_libraries(vgiv PRIVATE ole32 shell32 uuid)
 endif()
 
