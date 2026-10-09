@@ -7,11 +7,12 @@ function(vgiv_add_plugin name)
   add_library(vgiv_plugin_${name} SHARED ${ARGN} ${CMAKE_CURRENT_SOURCE_DIR}/vgiv_plugin_common.cpp)
   set_target_properties(vgiv_plugin_${name} PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "${name}"
+    OUTPUT_NAME "$<IF:$<BOOL:${WIN32}>,vgiv_${name},${name}>"
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
   )
   target_include_directories(vgiv_plugin_${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  install(TARGETS vgiv_plugin_${name} LIBRARY DESTINATION lib/vgiv/plugins)
+  install(TARGETS vgiv_plugin_${name} LIBRARY DESTINATION lib/vgiv/plugins RUNTIME DESTINATION lib/vgiv/plugins)
 endfunction()
 
 vgiv_add_plugin(stbimage stbimage/stbimage_plugin.cpp)

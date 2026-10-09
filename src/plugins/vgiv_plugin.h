@@ -13,6 +13,12 @@
 //
 #include <stdbool.h>
 
+#ifdef _WIN32
+#define VGIV_PLUGIN_API __declspec(dllexport)
+#else
+#define VGIV_PLUGIN_API __attribute__((visibility("default")))
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -62,18 +68,18 @@ extern "C"
     // Does this plugin recognize `filename` (by extension)? Called by the
     // host for every loaded plugin, in sorted-filename order, until one
     // returns true (first-match-wins).
-    bool vgiv_plugin_supports_file(const char* filename);
+    VGIV_PLUGIN_API bool vgiv_plugin_supports_file(const char* filename);
 
     // Load `filename` into a freshly heap-allocated VgivPluginImage. On
     // failure returns NULL and, if error_msg is non-NULL, sets *error_msg
     // to a freshly heap-allocated message (free with vgiv_plugin_free_error).
-    VgivPluginImage* vgiv_plugin_load_image(const char* filename, char** error_msg);
+    VGIV_PLUGIN_API VgivPluginImage* vgiv_plugin_load_image(const char* filename, char** error_msg);
 
     // Frees an image returned by vgiv_plugin_load_image.
-    void vgiv_plugin_free_image(VgivPluginImage* img);
+    VGIV_PLUGIN_API void vgiv_plugin_free_image(VgivPluginImage* img);
 
     // Frees an error message set by vgiv_plugin_load_image.
-    void vgiv_plugin_free_error(char* error_msg);
+    VGIV_PLUGIN_API void vgiv_plugin_free_error(char* error_msg);
 
 #ifdef __cplusplus
 }
