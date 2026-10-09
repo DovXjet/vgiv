@@ -22,10 +22,17 @@ find_package(spdlog CONFIG REQUIRED)
 # Qt6 build of all of Qt itself via vcpkg.
 include(FetchContent)
 set(QT_PACKAGE_NAME Qt6 CACHE STRING "" FORCE)
+# EXCLUDE_FROM_ALL keeps vsgQt's example apps and install rules out of the
+# build/install (vgiv still builds the vsgQt library it links). Needs 3.28+.
+set(VGIV_VSGQT_EXCLUDE "")
+if(NOT CMAKE_VERSION VERSION_LESS 3.28)
+  set(VGIV_VSGQT_EXCLUDE EXCLUDE_FROM_ALL)
+endif()
 FetchContent_Declare(vsgQt
   GIT_REPOSITORY https://github.com/vsg-dev/vsgQt.git
   GIT_TAG v0.4.0
   GIT_SHALLOW TRUE
+  ${VGIV_VSGQT_EXCLUDE}
 )
 FetchContent_MakeAvailable(vsgQt)
 
@@ -118,6 +125,17 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(vgiv PRIVATE pthread ${CMAKE_DL_LIBS})
 endif()
 
+if(WIN32)
+  # GUI subsystem: no console window. Keep the plain main() entry point
+  # instead of requiring WinMain.
+  set_target_properties(vgiv PROPERTIES WIN32_EXECUTABLE TRUE)
+  if(MSVC)
+    target_link_options(vgiv PRIVATE /ENTRY:mainCRTStartup)
+  else()
+    target_link_options(vgiv PRIVATE -Wl,-subsystem,windows -Wl,-e,mainCRTStartup)
+  endif()
+endif()
+
 
 if(WIN32)
   # Qt needs its platform plugin next to the exe (vcpkg's applocal step only
@@ -130,8 +148,26 @@ if(WIN32)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VGIV_QWINDOWS_PLUGIN} $<TARGET_FILE_DIR:vgiv>/platforms/
   )
 endif()
-install(TARGETS vgiv RUNTIME DESTINATION bin)
-install(DIRECTORY ${CMAKE_BINARY_DIR}/shaders DESTINATION share/vgiv)
+if(WIN32)
+  # Flat layout next to vgiv.exe (see AppPaths.h): shaders/, plugins/,
+  # platforms/ and every runtime DLL that vcpkg's applocal step put in the
+  # build tree. The NSIS installer (Installers/) packages this prefix.
+  install(TARGETS vgiv RUNTIME DESTINATION .)
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/shaders DESTINATION .)
+  install(CODE "
+    file(GLOB _vgiv_dlls \"${CMAKE_BINARY_DIR}/*.dll\")
+    file(INSTALL \${_vgiv_dlls} DESTINATION \"\${CMAKE_INSTALL_PREFIX}\")
+    file(GLOB _vgiv_plugin_dlls \"${CMAKE_BINARY_DIR}/plugins/*.dll\")
+    file(INSTALL \${_vgiv_plugin_dlls} DESTINATION \"\${CMAKE_INSTALL_PREFIX}/plugins\")
+    file(INSTALL \"${CMAKE_BINARY_DIR}/platforms/qwindows.dll\" DESTINATION \"\${CMAKE_INSTALL_PREFIX}/platforms\")
+  ")
+  # App-local MSVC runtime, so no separate vc_redist install is needed.
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
+  include(InstallRequiredSystemLibraries)
+else()
+  install(TARGETS vgiv RUNTIME DESTINATION bin)
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/shaders DESTINATION share/vgiv)
+endif()
 
 # ---------------------------------------------------------------------------
 # Image-format plugins (dlopen-loaded .so files, see src/ImagePluginHost)

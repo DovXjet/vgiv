@@ -12,7 +12,11 @@ function(vgiv_add_plugin name)
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
   )
   target_include_directories(vgiv_plugin_${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  install(TARGETS vgiv_plugin_${name} LIBRARY DESTINATION lib/vgiv/plugins RUNTIME DESTINATION lib/vgiv/plugins)
+  if(WIN32)
+    install(TARGETS vgiv_plugin_${name} RUNTIME DESTINATION plugins)
+  else()
+    install(TARGETS vgiv_plugin_${name} LIBRARY DESTINATION lib/vgiv/plugins)
+  endif()
 endfunction()
 
 vgiv_add_plugin(stbimage stbimage/stbimage_plugin.cpp)

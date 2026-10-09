@@ -2,6 +2,7 @@
 
 #include "plugins/vgiv_plugin.h"
 #include "plugins/vgiv_plugin_common.h"
+#include "AppPaths.h"
 
 #include <spdlog/spdlog.h>
 
@@ -170,7 +171,7 @@ std::vector<Plugin>& loadedPlugins()
     scanned = true;
 
     const char* dirOverride = std::getenv("VGIV_PLUGIN_DIR");
-    std::string dir = dirOverride ? dirOverride : VGIV_PLUGIN_DIR;
+    std::string dir = dirOverride ? std::string(dirOverride) : resourceDir("plugins", VGIV_PLUGIN_DIR);
 
     std::error_code ec;
     if (!fs::is_directory(dir, ec))
