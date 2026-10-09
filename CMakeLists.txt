@@ -110,6 +110,10 @@ add_executable(vgiv
   src/qt/OpenFileDialog.cpp
   src/qt/RpcServer.cpp
 )
+if(WIN32)
+  target_sources(vgiv PRIVATE src/qt/WinDropTarget.cpp)
+  target_link_libraries(vgiv PRIVATE ole32 shell32 uuid)
+endif()
 
 add_dependencies(vgiv vgiv_shaders)
 
