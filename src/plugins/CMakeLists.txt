@@ -53,4 +53,10 @@ if(NOT cfitsio_FOUND)
   pkg_check_modules(CFITSIO REQUIRED IMPORTED_TARGET cfitsio)
 endif()
 vgiv_add_plugin(fits fits/fits_plugin.cpp)
+# Fedora's mingw cfitsio puts fitsio.h in include/cfitsio/, which its CMake
+# config doesn't export.
+find_path(VGIV_CFITSIO_INCLUDE fitsio.h PATH_SUFFIXES cfitsio)
+if(VGIV_CFITSIO_INCLUDE)
+  target_include_directories(vgiv_plugin_fits PRIVATE ${VGIV_CFITSIO_INCLUDE})
+endif()
 target_link_libraries(vgiv_plugin_fits PRIVATE $<IF:$<TARGET_EXISTS:CFITSIO::cfitsio>,CFITSIO::cfitsio,PkgConfig::CFITSIO>)
