@@ -330,6 +330,11 @@ void MainWindow::loadFiles(const std::vector<std::string>& paths)
         return;
     }
 
+    {
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "vgiv", "vgiv");
+        OpenFileDialog::recordRecentDirectory(settings, QFileInfo(expanded.first()).absolutePath());
+    }
+
     browseList_.clear();
     if (expanded.size() > 1)
     {
