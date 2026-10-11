@@ -199,6 +199,12 @@ if(WIN32)
   install(CODE "
     file(GLOB _vgiv_dlls \"${CMAKE_BINARY_DIR}/*.dll\")
     file(INSTALL \${_vgiv_dlls} DESTINATION \"\${CMAKE_INSTALL_PREFIX}/bin\")
+    # Third-party DLLs the image plugins depend on (cfitsio, tiff, ...) land
+    # in plugins/ next to the plugins themselves; install them into bin/,
+    # where ImagePluginHost adds the exe directory to the DLL search path.
+    file(GLOB _vgiv_plugin_deps \"${CMAKE_BINARY_DIR}/plugins/*.dll\")
+    list(FILTER _vgiv_plugin_deps EXCLUDE REGEX \"/vgiv_[^/]*\$\")
+    file(INSTALL \${_vgiv_plugin_deps} DESTINATION \"\${CMAKE_INSTALL_PREFIX}/bin\")
     file(INSTALL \"${CMAKE_BINARY_DIR}/platforms/qwindows.dll\" DESTINATION \"\${CMAKE_INSTALL_PREFIX}/bin/platforms\")
   ")
   # App-local MSVC runtime, so no separate vc_redist install is needed.

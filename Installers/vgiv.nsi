@@ -34,8 +34,6 @@ InstallDirRegKey HKLM "Software\vgiv" ""
 
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
-!define MUI_FINISHPAGE_RUN "$INSTDIR\bin\vgiv.exe"
-!define MUI_FINISHPAGE_RUN_TEXT "Start vgiv"
 
 !define MUI_LICENSEPAGE_TEXT_TOP "vgiv is free software. Here is its license."
 !insertmacro MUI_PAGE_WELCOME
