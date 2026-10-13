@@ -147,7 +147,29 @@ add_dependencies(vgiv vgiv_shaders)
 target_include_directories(vgiv PRIVATE src ${CMAKE_SOURCE_DIR}/third_party)
 target_link_libraries(vgiv PRIVATE vsg::vsg vsgXchange::vsgXchange vsgQt::vsgQt Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent Qt6::Network QtAwesome spdlog::spdlog)
 
+# Version / commit info shown in Help > About.
+file(READ ${CMAKE_SOURCE_DIR}/vcpkg.json _vcpkg_json)
+string(JSON VGIV_VERSION GET "${_vcpkg_json}" version)
+set(VGIV_COMMIT_ID unknown)
+set(VGIV_COMMIT_DATE unknown)
+find_package(Git QUIET)
+if(GIT_FOUND)
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%H
+                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                  OUTPUT_VARIABLE _id OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%ci
+                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                  OUTPUT_VARIABLE _date OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+  if(_id)
+    set(VGIV_COMMIT_ID ${_id})
+    set(VGIV_COMMIT_DATE ${_date})
+  endif()
+endif()
+
 target_compile_definitions(vgiv PRIVATE
+  VGIV_VERSION="${VGIV_VERSION}"
+  VGIV_COMMIT_ID="${VGIV_COMMIT_ID}"
+  VGIV_COMMIT_DATE="${VGIV_COMMIT_DATE}"
   VGIV_SHADER_DIR="${CMAKE_BINARY_DIR}/shaders"
   VGIV_PLUGIN_DIR="${CMAKE_BINARY_DIR}/plugins"
 )
