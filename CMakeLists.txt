@@ -133,7 +133,7 @@ add_executable(vgiv
 )
 if(WIN32)
   # vgiv.rc embeds the app icon (id 1) and the .giv file icon (id 2).
-  target_sources(vgiv PRIVATE src/qt/WinDropTarget.cpp resources/vgiv.rc)
+  target_sources(vgiv PRIVATE src/qt/WinDropTarget.cpp resources/vgiv.rc resources/vgiv.manifest)
   # rc.exe doesn't report include dependencies; without this, editing an
   # icon doesn't rebuild the resource and the exe keeps the stale icon.
   set_source_files_properties(resources/vgiv.rc PROPERTIES
